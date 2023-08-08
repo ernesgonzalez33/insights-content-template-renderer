@@ -61,11 +61,11 @@ spec:
             script: |
               #!/bin/bash
               set -ex
-
-              oc get deployments -o yaml
               
               echo "Connecting to the ephemeral namespace cluster"
               login.sh
+
+              oc get deployments -o yaml
 
               echo "Releasing ephemeral namespace"
               release-ns.sh "$(params.NS)" "$(params.NS_REQUESTER)"
