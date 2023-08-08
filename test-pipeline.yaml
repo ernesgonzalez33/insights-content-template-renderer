@@ -44,7 +44,7 @@ spec:
             description: "Secret for connecting to ephemeral env provider cluster"
         steps:
           - name: release-namespace
-            image: quay.io/redhat-user-workloads/rhtap-migration-tenant/bonfire-cicd-tools/cicd-tools@sha256:3ad9ca2614e1f281f141b17c4c18fc8fa4f584aa5f6b71cb50759b292df70f8e
+            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:build-e83ba-1691504331
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -61,6 +61,8 @@ spec:
             script: |
               #!/bin/bash
               set -ex
+
+              oc get deployments -o yaml
               
               echo "Connecting to the ephemeral namespace cluster"
               login.sh
@@ -87,7 +89,7 @@ spec:
             description: ""
         steps:
           - name: reserve-namespace
-            image: quay.io/redhat-user-workloads/rhtap-migration-tenant/bonfire-cicd-tools/cicd-tools@sha256:3ad9ca2614e1f281f141b17c4c18fc8fa4f584aa5f6b71cb50759b292df70f8e
+            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:build-e83ba-1691504331
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -157,7 +159,7 @@ spec:
               default: insights-content-template-renderer
           steps:
             - name: deploy-application
-              image: quay.io/redhat-user-workloads/rhtap-migration-tenant/bonfire-cicd-tools/cicd-tools@sha256:3ad9ca2614e1f281f141b17c4c18fc8fa4f584aa5f6b71cb50759b292df70f8e
+              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:build-e83ba-1691504331
               env:
                 - name: APP_INTERFACE_USERNAME
                   valueFrom:
@@ -261,7 +263,7 @@ spec:
               description: ""
           steps:
             - name: run-test
-              image: quay.io/redhat-user-workloads/rhtap-migration-tenant/bonfire-cicd-tools/cicd-tools@sha256:3ad9ca2614e1f281f141b17c4c18fc8fa4f584aa5f6b71cb50759b292df70f8e
+              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:build-e83ba-1691504331
               env:
                 - name: OC_LOGIN_TOKEN
                   valueFrom:
