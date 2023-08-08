@@ -66,6 +66,7 @@ spec:
               login.sh
 
               oc get deployments -o yaml -n $(params.NS)
+              oc get events -n $(params.NS)
 
               echo "Releasing ephemeral namespace"
               release-ns.sh "$(params.NS)" "$(params.NS_REQUESTER)"
