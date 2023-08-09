@@ -211,6 +211,7 @@ spec:
                 parsed="$(parse-snapshot.py)"
                 echo "$parsed"
                 eval "$parsed"
+                export IMAGE_TAG=on-pr-$IMAGE_TAG
                 deploy.sh "$(params.NS)" "$(params.NS_REQUESTER)"
     - name: run-test
       params:
