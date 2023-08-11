@@ -44,7 +44,7 @@ spec:
             description: "Secret for connecting to ephemeral env provider cluster"
         steps:
           - name: release-namespace
-            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-5185458e7c6e5e3ab297ef2dbb265d4a1ccb8b34
+            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-26967bb0687665cb01692c40cad67a06c24073f4
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -87,7 +87,7 @@ spec:
             description: ""
         steps:
           - name: reserve-namespace
-            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-5185458e7c6e5e3ab297ef2dbb265d4a1ccb8b34
+            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-26967bb0687665cb01692c40cad67a06c24073f4
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -157,7 +157,7 @@ spec:
               default: insights-content-template-renderer
           steps:
             - name: deploy-application
-              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-5185458e7c6e5e3ab297ef2dbb265d4a1ccb8b34
+              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-26967bb0687665cb01692c40cad67a06c24073f4
               env:
                 - name: APP_INTERFACE_USERNAME
                   valueFrom:
@@ -208,7 +208,7 @@ spec:
                 parsed="$(parse-snapshot.py)"
                 echo "$parsed"
                 eval "$parsed"
-                export IMAGE_TAG=on-pr-$IMAGE_TAG
+                export IMAGE_TAG=on-pr-$IMAGE_TAG # Comment when merging the PR
                 deploy.sh "$(params.NS)" "$(params.NS_REQUESTER)"
     - name: run-cji-smoke-test
       params:
@@ -273,8 +273,8 @@ spec:
             - name: TEST_OUTPUT
               description: ""
           steps:
-            - name: run-test
-              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-5185458e7c6e5e3ab297ef2dbb265d4a1ccb8b34
+            - name: deploy-iqe-cji
+              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-26967bb0687665cb01692c40cad67a06c24073f4
               env:
                 - name: OC_LOGIN_TOKEN
                   valueFrom:
@@ -298,8 +298,14 @@ spec:
                   value: $(params.IQE_REQUIREMENTS)
                 - name: IQE_REQUIREMENTS_PRIORITY
                   value: $(params.IQE_REQUIREMENTS_PRIORITY)
+                - name: IQE_TEST_IMPORTANCE
+                  value: $(params.IQE_TEST_IMPORTANCE)
                 - name: IQE_CJI_TIMEOUT
                   value: $(params.IQE_CJI_TIMEOUT)
+                - name: IQE_ENV
+                  value: $(params.IQE_ENV)
+                - name: IQE_SELENIUM
+                  value: $(params.IQE_SELENIUM)
                 - name: BONFIRE_BOT
                   value: "true"
               script: |
@@ -309,6 +315,7 @@ spec:
                 echo "Connecting to the ephemeral namespace cluster"
                 login.sh
 
-                echo "Running the test"
-                oc_wrapper project "$(params.NS)"
+                echo "Deploying the IQE CJI smoke test"
+                . ./deploy-iqe-cji.sh $(params.NS)
+                echo $POD
                 oc_wrapper get deployments > "$(results.TEST_OUTPUT.path)"
