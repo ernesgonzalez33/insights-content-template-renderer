@@ -44,7 +44,7 @@ spec:
             description: "Secret for connecting to ephemeral env provider cluster"
         steps:
           - name: release-namespace
-            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-a57b60162e8f7c2a4f051580f355fe82b4e67ae4
+            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-e3691033d1d971f650a3d796638d5c081b2e00fe
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -87,7 +87,7 @@ spec:
             description: ""
         steps:
           - name: reserve-namespace
-            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-a57b60162e8f7c2a4f051580f355fe82b4e67ae4
+            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-e3691033d1d971f650a3d796638d5c081b2e00fe
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -157,7 +157,7 @@ spec:
               default: insights-content-template-renderer
           steps:
             - name: deploy-application
-              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-a57b60162e8f7c2a4f051580f355fe82b4e67ae4
+              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-e3691033d1d971f650a3d796638d5c081b2e00fe
               env:
                 - name: APP_INTERFACE_USERNAME
                   valueFrom:
@@ -274,7 +274,7 @@ spec:
               description: ""
           steps:
             - name: deploy-iqe-cji
-              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-a57b60162e8f7c2a4f051580f355fe82b4e67ae4
+              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-e3691033d1d971f650a3d796638d5c081b2e00fe
               env:
                 - name: OC_LOGIN_TOKEN
                   valueFrom:
@@ -316,6 +316,6 @@ spec:
                 login.sh
 
                 echo "Deploying the IQE CJI smoke test"
-                deploy-iqe-cji.sh $(params.NS)
+                deploy-iqe-cji.sh "$(params.NS)" "$(params.NS_REQUESTER)"
                 echo $POD
                 oc_wrapper get deployments > "$(results.TEST_OUTPUT.path)"
