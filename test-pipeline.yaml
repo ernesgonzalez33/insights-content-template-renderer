@@ -44,7 +44,7 @@ spec:
             description: "Secret for connecting to ephemeral env provider cluster"
         steps:
           - name: release-namespace
-            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-26967bb0687665cb01692c40cad67a06c24073f4
+            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-a57b60162e8f7c2a4f051580f355fe82b4e67ae4
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -87,7 +87,7 @@ spec:
             description: ""
         steps:
           - name: reserve-namespace
-            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-26967bb0687665cb01692c40cad67a06c24073f4
+            image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-a57b60162e8f7c2a4f051580f355fe82b4e67ae4
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -157,7 +157,7 @@ spec:
               default: insights-content-template-renderer
           steps:
             - name: deploy-application
-              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-26967bb0687665cb01692c40cad67a06c24073f4
+              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-a57b60162e8f7c2a4f051580f355fe82b4e67ae4
               env:
                 - name: APP_INTERFACE_USERNAME
                   valueFrom:
@@ -274,7 +274,7 @@ spec:
               description: ""
           steps:
             - name: deploy-iqe-cji
-              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-26967bb0687665cb01692c40cad67a06c24073f4
+              image: quay.io/redhat-user-workloads/ergonzale-tenant/cicd-tools/cicd-tools:on-pr-a57b60162e8f7c2a4f051580f355fe82b4e67ae4
               env:
                 - name: OC_LOGIN_TOKEN
                   valueFrom:
