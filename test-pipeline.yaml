@@ -319,6 +319,7 @@ spec:
                 deploy-iqe-cji.sh "$(params.NS)" "$(params.NS_REQUESTER)"
                 echo $POD > /workspace/POD
             - name: minio-setup
+              image: quay.io/ernesgonzalez33/bonfire:latest
               env:
                 - name: OC_LOGIN_TOKEN
                   valueFrom:
