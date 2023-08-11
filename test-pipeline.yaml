@@ -317,5 +317,31 @@ spec:
 
                 echo "Deploying the IQE CJI smoke test"
                 deploy-iqe-cji.sh "$(params.NS)" "$(params.NS_REQUESTER)"
-                echo $POD > "$(results.TEST_OUTPUT.path)"
+                echo $POD > /workspace/POD
+            - name: minio-setup
+              env:
+                - name: OC_LOGIN_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: $(params.EPHEMERAL_ENV_PROVIDER_SECRET)
+                      key: token
+                - name: OC_LOGIN_SERVER
+                  valueFrom:
+                    secretKeyRef:
+                      name: $(params.EPHEMERAL_ENV_PROVIDER_SECRET)
+                      key: url
+              script: |
+                #!/bin/bash
+                set -ex
+
+                export POD=$(cat /workspace/POD)
+
+                echo "Connecting to the ephemeral namespace cluster"
+                login.sh
+
+                echo "Setting up minio"
+                minio-setup.sh "$(params.NS)" "$(params.NS_REQUESTER)"
+
+                echo SUCCESS > $(results.TEST_OUTPUT.path)
+
                 
