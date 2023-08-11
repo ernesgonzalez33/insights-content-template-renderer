@@ -316,6 +316,6 @@ spec:
                 login.sh
 
                 echo "Deploying the IQE CJI smoke test"
-                . ./deploy-iqe-cji.sh $(params.NS)
+                deploy-iqe-cji.sh $(params.NS)
                 echo $POD
                 oc_wrapper get deployments > "$(results.TEST_OUTPUT.path)"
