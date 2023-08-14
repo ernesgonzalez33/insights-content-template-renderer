@@ -341,6 +341,25 @@ spec:
 
                 echo "Setting up minio"
                 minio-setup.sh "$(params.NS)" "$(params.NS_REQUESTER)"
+            - name: run-mc
+              image: quay.io/ernesgonzalez33/bonfire:latest
+              env:
+                - name: OC_LOGIN_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: $(params.EPHEMERAL_ENV_PROVIDER_SECRET)
+                      key: token
+                - name: OC_LOGIN_SERVER
+                  valueFrom:
+                    secretKeyRef:
+                      name: $(params.EPHEMERAL_ENV_PROVIDER_SECRET)
+                      key: url
+              script: |
+                #!/bin/bash
+                set -ex
+
+                echo "Connecting to the ephemeral namespace cluster"
+                login.sh
 
                 echo SUCCESS > $(results.TEST_OUTPUT.path)
 
