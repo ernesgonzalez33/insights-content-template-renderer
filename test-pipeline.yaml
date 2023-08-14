@@ -317,7 +317,7 @@ spec:
 
                 echo "Deploying the IQE CJI smoke test"
                 deploy-iqe-cji.sh "$(params.NS)" "$(params.NS_REQUESTER)"
-                echo $POD > /workspace/POD
+                cat /workspace/POD
             - name: minio-setup
               image: quay.io/ernesgonzalez33/bonfire:latest
               env:
