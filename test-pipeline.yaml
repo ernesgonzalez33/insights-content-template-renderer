@@ -342,7 +342,7 @@ spec:
                 echo "Setting up minio"
                 minio-setup.sh "$(params.NS)" "$(params.NS_REQUESTER)"
             - name: run-mc
-              image: quay.io/ernesgonzalez33/bonfire:latest
+              image: quay.io/cloudservices/mc:latest
               env:
                 - name: OC_LOGIN_TOKEN
                   valueFrom:
@@ -357,6 +357,9 @@ spec:
               script: |
                 #!/bin/bash
                 set -ex
+
+                export CMD=$(cat /workspace/CMD)
+                echo $CMD
 
                 echo "Connecting to the ephemeral namespace cluster"
                 login.sh
