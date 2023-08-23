@@ -21,7 +21,7 @@ spec:
         Each "containerImage" in the "components" array is validated.
   results:
     - name: TEST_OUTPUT
-      value: "$(tasks.run-test.results.TEST_OUTPUT)"
+      value: "$(tasks.run-cji-smoke-test.results.TEST_OUTPUT)"
       description: ""
   finally:
     - name: release-namespace
@@ -44,7 +44,7 @@ spec:
             description: "Secret for connecting to ephemeral env provider cluster"
         steps:
           - name: release-namespace
-            image: quay.io/redhat-user-workloads/rhtap-migration-tenant/bonfire-cicd-tools/cicd-tools@sha256:3ad9ca2614e1f281f141b17c4c18fc8fa4f584aa5f6b71cb50759b292df70f8e
+            image: quay.io/ernesgonzalez33/bonfire:latest
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -87,7 +87,7 @@ spec:
             description: ""
         steps:
           - name: reserve-namespace
-            image: quay.io/redhat-user-workloads/rhtap-migration-tenant/bonfire-cicd-tools/cicd-tools@sha256:3ad9ca2614e1f281f141b17c4c18fc8fa4f584aa5f6b71cb50759b292df70f8e
+            image: quay.io/ernesgonzalez33/bonfire:latest
             env:
               - name: OC_LOGIN_TOKEN
                 valueFrom:
@@ -157,7 +157,7 @@ spec:
               default: insights-content-template-renderer
           steps:
             - name: deploy-application
-              image: quay.io/redhat-user-workloads/rhtap-migration-tenant/bonfire-cicd-tools/cicd-tools@sha256:3ad9ca2614e1f281f141b17c4c18fc8fa4f584aa5f6b71cb50759b292df70f8e
+              image: quay.io/ernesgonzalez33/bonfire:latest
               env:
                 - name: APP_INTERFACE_USERNAME
                   valueFrom:
@@ -208,8 +208,9 @@ spec:
                 parsed="$(parse-snapshot.py)"
                 echo "$parsed"
                 eval "$parsed"
+                export IMAGE_TAG=on-pr-$IMAGE_TAG # Comment when merging the PR
                 deploy.sh "$(params.NS)" "$(params.NS_REQUESTER)"
-    - name: run-test
+    - name: run-cji-smoke-test
       params:
         - name: NS
           value: "$(tasks.reserve-namespace.results.NS)"
@@ -244,6 +245,10 @@ spec:
               type: string
               description: This is the value passed to pytest -k
               default: test_plugin_accessible
+            - name: IQE_REQUIREMENTS
+              type: string
+              description: ""
+              default: ""
             - name: IQE_REQUIREMENTS_PRIORITY
               type: string
               description: ""
@@ -256,12 +261,20 @@ spec:
               type: string
               description: This is the time to wait for smoke test to complete or fail
               default: 30m
+            - name: IQE_ENV
+              type: string
+              description: "something -- value to set for ENV_FOR_DYNACONF, default is \"clowder_smoke\""
+              default: "clowder_smoke"
+            - name: IQE_SELENIUM
+              type: string
+              description: "true -- whether to run IQE pod with a selenium container, default is false"
+              default: "false"
           results:
             - name: TEST_OUTPUT
               description: ""
           steps:
-            - name: run-test
-              image: quay.io/redhat-user-workloads/rhtap-migration-tenant/bonfire-cicd-tools/cicd-tools@sha256:3ad9ca2614e1f281f141b17c4c18fc8fa4f584aa5f6b71cb50759b292df70f8e
+            - name: deploy-iqe-cji
+              image: quay.io/ernesgonzalez33/bonfire:latest
               env:
                 - name: OC_LOGIN_TOKEN
                   valueFrom:
@@ -281,10 +294,18 @@ spec:
                   value: $(params.IQE_MARKER_EXPRESSION)
                 - name: IQE_FILTER_EXPRESSION
                   value: $(params.IQE_FILTER_EXPRESSION)
+                - name: IQE_REQUIREMENTS
+                  value: $(params.IQE_REQUIREMENTS)
                 - name: IQE_REQUIREMENTS_PRIORITY
                   value: $(params.IQE_REQUIREMENTS_PRIORITY)
+                - name: IQE_TEST_IMPORTANCE
+                  value: $(params.IQE_TEST_IMPORTANCE)
                 - name: IQE_CJI_TIMEOUT
                   value: $(params.IQE_CJI_TIMEOUT)
+                - name: IQE_ENV
+                  value: $(params.IQE_ENV)
+                - name: IQE_SELENIUM
+                  value: $(params.IQE_SELENIUM)
                 - name: BONFIRE_BOT
                   value: "true"
               script: |
@@ -294,6 +315,52 @@ spec:
                 echo "Connecting to the ephemeral namespace cluster"
                 login.sh
 
-                echo "Running the test"
-                oc_wrapper project "$(params.NS)"
-                oc_wrapper get deployments > "$(results.TEST_OUTPUT.path)"
+                echo "Deploying the IQE CJI smoke test"
+                deploy-iqe-cji.sh "$(params.NS)" "$(params.NS_REQUESTER)"
+            - name: minio-setup
+              image: quay.io/ernesgonzalez33/bonfire:latest
+              env:
+                - name: OC_LOGIN_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: $(params.EPHEMERAL_ENV_PROVIDER_SECRET)
+                      key: token
+                - name: OC_LOGIN_SERVER
+                  valueFrom:
+                    secretKeyRef:
+                      name: $(params.EPHEMERAL_ENV_PROVIDER_SECRET)
+                      key: url
+              script: |
+                #!/bin/bash
+                set -ex
+
+                export POD=$(cat /workspace/POD)
+
+                echo "Connecting to the ephemeral namespace cluster"
+                login.sh
+
+                echo "Setting up minio"
+                minio-setup.sh "$(params.NS)" "$(params.NS_REQUESTER)"
+            # - name: run-mc
+            #   image: quay.io/ernesgonzalez33/bonfire:latest
+            #   env:
+            #     - name: OC_LOGIN_TOKEN
+            #       valueFrom:
+            #         secretKeyRef:
+            #           name: $(params.EPHEMERAL_ENV_PROVIDER_SECRET)
+            #           key: token
+            #     - name: OC_LOGIN_SERVER
+            #       valueFrom:
+            #         secretKeyRef:
+            #           name: $(params.EPHEMERAL_ENV_PROVIDER_SECRET)
+            #           key: url
+            #   script: |
+            #     #!/bin/bash
+            #     set -ex
+
+            #     export CMD=$(cat /workspace/CMD)
+            #     eval "$CMD" 
+
+            #     echo SUCCESS > $(results.TEST_OUTPUT.path)
+
+                
